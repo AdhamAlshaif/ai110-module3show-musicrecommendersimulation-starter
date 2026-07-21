@@ -17,17 +17,20 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+Real-world recommenders (Spotify, YouTube, etc.) learn what you like from your
+behavior — the songs you play, like, skip, and save — and predict new songs with
+similar features or that people with similar taste enjoyed. My version is simpler:
+instead of learning from behavior, it uses a stated taste profile and scores each
+song by how well its features match that profile. It prioritizes **genre and mood**
+(the biggest matches) and then **energy** and **acoustic** preference for finer tuning.
 
-Some prompts to answer:
+**Features my `Song` object uses:** `genre`, `mood`, `energy`, `acousticness`.
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+**Features my `UserProfile` stores:** `favorite_genre`, `favorite_mood`,
+`target_energy`, `likes_acoustic`.
 
-You can include a simple diagram or bullet list if helpful.
+The `Recommender` scores each song using these features (see
+[algorithm_recipe.md](algorithm_recipe.md)), then sorts by score and returns the top `k`.
 
 ---
 
