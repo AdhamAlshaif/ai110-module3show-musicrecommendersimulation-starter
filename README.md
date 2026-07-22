@@ -29,8 +29,20 @@ song by how well its features match that profile. It prioritizes **genre and moo
 **Features my `UserProfile` stores:** `favorite_genre`, `favorite_mood`,
 `target_energy`, `likes_acoustic`.
 
-The `Recommender` scores each song using these features (see
-[algorithm_recipe.md](algorithm_recipe.md)), then sorts by score and returns the top `k`.
+### Algorithm Recipe
+
+For every song, start `score = 0`, apply each rule, then rank.
+
+- **Genre** — if `song.genre == user.favorite_genre`, add **+5**. Reason: "matches your favorite genre."
+- **Mood** — if `song.mood == user.favorite_mood`, add **+4**. Reason: "matches your mood."
+- **Energy** — add `2 × (1 − |song.energy − user.target_energy|)`. Perfect match adds ~2, far-off adds ~0. Reason: "energy is close to what you wanted."
+- **Acoustic** — if `user.likes_acoustic` and `song.acousticness > 0.6`, add **+1**. Reason: "you like acoustic songs."
+
+**Total** = sum of the rules. Sort descending, recommend the top `k`.
+
+### Expected Bias
+
+Because a genre match (+5) outscores a mood match (+4), this system **over-prioritizes genre** — it can bury a song that perfectly matches the user's mood just because it's in a different genre. It also assumes a stated profile is honest and stable, and only knows four features, so it ignores lyrics, artist, and anything about *why* someone likes a song.
 
 ---
 
