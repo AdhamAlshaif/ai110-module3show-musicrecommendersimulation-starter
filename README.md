@@ -171,14 +171,27 @@ I go deeper on all of this in the model card.
 
 ## Reflection
 
-Read and complete `model_card.md`:
-
 [**Model Card**](model_card.md)
 
-Write 1 to 2 paragraphs here about what you learned:
+Working on this showed me that a recommender is really just turning data into
+numbers and then sorting. My system takes what you say you like, gives each song
+points for how well it matches, adds the points up, and shows you the top ones.
+That's it, there's no magic. The biggest thing that clicked for me was that the
+recommendations are only as good as the data. Most of the problems I found were
+not from my code, they were from the tiny 20-song list. When a whole genre only
+has one song, there is nothing my rules can do to give you variety.
 
-- about how recommenders turn data into predictions
-- about where bias or unfairness could show up in systems like this
+I also saw where bias sneaks in. My scoring gives genre more points than mood, so
+a pop song can win even when the mood is wrong, like an intense workout song
+showing up for someone who wanted happy music. And because most of the songs are
+high energy, people who want calm music get worse matches, which is not really
+fair to them. Using AI tools helped me write the code faster and explained things
+I didn't get, like the difference between `.sort()` and `sorted()`. But I still
+had to check its work. One time it changed an import and broke the run button, so
+I learned not to just trust the output. The thing that surprised me most is how a
+simple points system can still feel smart when it hands you a good song with the
+reasons. If I kept going, I'd add way more songs first, then let it learn from
+likes and skips instead of using one fixed profile.
 
 
 
