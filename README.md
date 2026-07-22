@@ -83,16 +83,42 @@ You can add more tests in `tests/test_recommender.py`.
 
 ## Sample Recommendation Output
 
-Paste a sample of your recommender's output here as a text block so a reader can see what it produces:
+Running `python -m src.main` with the default **pop / happy** profile
+(`favorite_genre=pop`, `favorite_mood=happy`, `target_energy=0.8`, `likes_acoustic=False`)
+produces:
 
 ```
-# e.g.:
-# User profile: genre=indie, mood=chill, energy=low
-# Recommendations:
-#   1. ...
-#   2. ...
-#   3. ...
+Loading songs from data/songs.csv...
+Loaded 20 songs.
+
+================================================
+Top 5 recommendations for a pop / happy listener
+================================================
+
+1. Sunrise City - Neon Echo
+   Score:   10.96
+   Reasons: genre match (+5.0), mood match (+4.0), energy match (+1.96)
+
+2. Gym Hero - Max Pulse
+   Score:   6.74
+   Reasons: genre match (+5.0), energy match (+1.74)
+
+3. Rooftop Lights - Indigo Parade
+   Score:   5.92
+   Reasons: mood match (+4.0), energy match (+1.92)
+
+4. Island Time - Palm Fever
+   Score:   5.56
+   Reasons: mood match (+4.0), energy match (+1.56)
+
+5. Concrete Jungle - Kilo Verse
+   Score:   1.96
+   Reasons: energy match (+1.96)
 ```
+
+The top result, *Sunrise City*, is a pop, happy, high-energy track — exactly
+what this profile should surface — and each recommendation lists the specific
+reasons (with points) behind its score.
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or demo video link here -->
 
