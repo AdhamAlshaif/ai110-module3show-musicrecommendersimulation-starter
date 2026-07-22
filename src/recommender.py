@@ -1,3 +1,4 @@
+import csv
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
 
@@ -47,12 +48,54 @@ class Recommender:
 
 def load_songs(csv_path: str) -> List[Dict]:
     """
-    Loads songs from a CSV file.
+    Loads songs from a CSV file into a list of dictionaries.
+
+    Each row becomes a dict keyed by the CSV headers. Values arrive from the
+    file as strings, so the numeric columns are converted to numbers to make
+    them usable by the scoring functions:
+      - id                                                    -> int
+      - energy, tempo_bpm, valence, danceability, acousticness -> float
+    Text columns (title, artist, genre, mood) are kept as trimmed strings.
+
+    Rows that are blank or have unparseable numbers are skipped with a warning
+    so one bad line can't crash the whole load.
+
     Required by src/main.py
     """
-    # TODO: Implement CSV loading logic
     print(f"Loading songs from {csv_path}...")
-    return []
+
+    songs: List[Dict] = []
+
+    with open(csv_path, mode="r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        for line_no, row in enumerate(reader, start=2):  # start=2: header is line 1
+            # Skip fully blank rows (e.g. a trailing newline at end of file).
+            if row is None or not any((value or "").strip() for value in row.values()):
+                continue
+
+            try:
+                # Keys follow the CSV header / Song field order. Numeric columns
+                # are converted so the scoring math works on numbers, not text.
+                song: Dict = {
+                    "id": int(row["id"]),
+                    "title": (row["title"] or "").strip(),
+                    "artist": (row["artist"] or "").strip(),
+                    "genre": (row["genre"] or "").strip(),
+                    "mood": (row["mood"] or "").strip(),
+                    "energy": float(row["energy"]),
+                    "tempo_bpm": float(row["tempo_bpm"]),
+                    "valence": float(row["valence"]),
+                    "danceability": float(row["danceability"]),
+                    "acousticness": float(row["acousticness"]),
+                }
+            except (KeyError, ValueError, TypeError) as err:
+                print(f"  Skipping row {line_no}: {err}")
+                continue
+
+            songs.append(song)
+
+    print(f"Loaded {len(songs)} songs.")
+    return songs
 
 def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     """
