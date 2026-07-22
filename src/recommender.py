@@ -97,58 +97,86 @@ def load_songs(csv_path: str) -> List[Dict]:
     print(f"Loaded {len(songs)} songs.")
     return songs
 
-def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
+# Point weights for each scoring rule, straight from the Algorithm Recipe.
+# Kept in one place so evaluation experiments can tweak them (e.g. double
+# `energy`, halve `genre`, or set `mood` to 0 to remove the rule entirely)
+# without touching the scoring logic below.
+DEFAULT_WEIGHTS = {
+    "genre": 5.0,     # exact genre-match bonus
+    "mood": 4.0,      # exact mood-match bonus
+    "energy": 2.0,    # max energy-closeness bonus (scaled by how close it is)
+    "acoustic": 1.0,  # acoustic-preference bonus
+}
+
+def score_song(
+    user_prefs: Dict,
+    song: Dict,
+    weights: Optional[Dict[str, float]] = None,
+) -> Tuple[float, List[str]]:
     """
     Scores a single song against user preferences.
 
     Applies the Algorithm Recipe rules and returns the total score plus a
     list of human-readable reasons explaining why the song scored points.
+    Pass a custom `weights` dict to run experiments; by default it uses
+    DEFAULT_WEIGHTS. A rule with weight 0 is effectively turned off.
 
     Required by recommend_songs() and src/main.py
     """
+    w = weights if weights is not None else DEFAULT_WEIGHTS
     score = 0.0
     reasons: List[str] = []
 
-    # Genre match (+5) — the biggest single bonus.
-    if song.get("genre") == user_prefs.get("favorite_genre"):
-        score += 5
-        reasons.append("genre match (+5.0)")
+    # Genre match — the biggest single bonus by default.
+    genre_w = w.get("genre", 0.0)
+    if genre_w and song.get("genre") == user_prefs.get("favorite_genre"):
+        score += genre_w
+        reasons.append(f"genre match (+{genre_w:.1f})")
 
-    # Mood match (+4).
-    if song.get("mood") == user_prefs.get("favorite_mood"):
-        score += 4
-        reasons.append("mood match (+4.0)")
+    # Mood match.
+    mood_w = w.get("mood", 0.0)
+    if mood_w and song.get("mood") == user_prefs.get("favorite_mood"):
+        score += mood_w
+        reasons.append(f"mood match (+{mood_w:.1f})")
 
-    # Energy closeness: 2 * (1 - |song.energy - target|), so a perfect match
-    # adds ~2 and a far-off one adds ~0. Clamped at 0 just in case.
+    # Energy closeness: energy_w * (1 - |song.energy - target|), so a perfect
+    # match adds ~energy_w and a far-off one adds ~0. Clamped at 0 just in case.
+    energy_w = w.get("energy", 0.0)
     target_energy = user_prefs.get("target_energy")
-    if target_energy is not None:
-        energy_points = 2 * (1 - abs(song["energy"] - target_energy))
+    if energy_w and target_energy is not None:
+        energy_points = energy_w * (1 - abs(song["energy"] - target_energy))
         energy_points = max(0.0, energy_points)
-        score += energy_points
         if energy_points > 0:
+            score += energy_points
             reasons.append(f"energy match (+{energy_points:.2f})")
 
-    # Acoustic preference (+1).
-    if user_prefs.get("likes_acoustic") and song.get("acousticness", 0) > 0.6:
-        score += 1
-        reasons.append("acoustic match (+1.0)")
+    # Acoustic preference.
+    acoustic_w = w.get("acoustic", 0.0)
+    if acoustic_w and user_prefs.get("likes_acoustic") and song.get("acousticness", 0) > 0.6:
+        score += acoustic_w
+        reasons.append(f"acoustic match (+{acoustic_w:.1f})")
 
     return score, reasons
 
-def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, str]]:
+def recommend_songs(
+    user_prefs: Dict,
+    songs: List[Dict],
+    k: int = 5,
+    weights: Optional[Dict[str, float]] = None,
+) -> List[Tuple[Dict, float, str]]:
     """
     Scores every song, sorts by score (highest first), and returns the top k.
 
     Each item is (song_dict, score, explanation), matching how src/main.py
-    unpacks and prints the results.
+    unpacks and prints the results. `weights` is passed through to score_song
+    so evaluation experiments can re-rank with different rule weights.
 
     Required by src/main.py
     """
     # Judge every song: pair each with its score and a readable explanation.
     scored: List[Tuple[Dict, float, str]] = []
     for song in songs:
-        score, reasons = score_song(user_prefs, song)
+        score, reasons = score_song(user_prefs, song, weights=weights)
         explanation = ", ".join(reasons) if reasons else "no strong matches"
         scored.append((song, score, explanation))
 

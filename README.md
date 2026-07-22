@@ -83,42 +83,39 @@ You can add more tests in `tests/test_recommender.py`.
 
 ## Sample Recommendation Output
 
-Running `python -m src.main` with the default **pop / happy** profile
-(`favorite_genre=pop`, `favorite_mood=happy`, `target_energy=0.8`, `likes_acoustic=False`)
-produces:
+When you run `python -m src.main` it goes through 5 profiles and prints the top 5
+for each one. Here is the first profile, the High-Energy Pop listener
+(`genre=pop, mood=happy, energy=0.9`):
 
 ```
 Loading songs from data/songs.csv...
 Loaded 20 songs.
 
-================================================
-Top 5 recommendations for a pop / happy listener
-================================================
-
+============================================================
+PROFILE: High-Energy Pop
+  genre=pop, mood=happy, energy=0.9, acoustic=False
+============================================================
 1. Sunrise City - Neon Echo
-   Score:   10.96
-   Reasons: genre match (+5.0), mood match (+4.0), energy match (+1.96)
-
+   Score:   10.84
+   Reasons: genre match (+5.0), mood match (+4.0), energy match (+1.84)
 2. Gym Hero - Max Pulse
-   Score:   6.74
-   Reasons: genre match (+5.0), energy match (+1.74)
-
+   Score:   6.94
+   Reasons: genre match (+5.0), energy match (+1.94)
 3. Rooftop Lights - Indigo Parade
-   Score:   5.92
-   Reasons: mood match (+4.0), energy match (+1.92)
-
+   Score:   5.72
+   Reasons: mood match (+4.0), energy match (+1.72)
 4. Island Time - Palm Fever
-   Score:   5.56
-   Reasons: mood match (+4.0), energy match (+1.56)
-
-5. Concrete Jungle - Kilo Verse
-   Score:   1.96
-   Reasons: energy match (+1.96)
+   Score:   5.36
+   Reasons: mood match (+4.0), energy match (+1.36)
+5. Storm Runner - Voltline
+   Score:   1.98
+   Reasons: energy match (+1.98)
 ```
 
-The top result, *Sunrise City*, is a pop, happy, high-energy track — exactly
-what this profile should surface — and each recommendation lists the specific
-reasons (with points) behind its score.
+Sunrise City wins because it's the only song that hits all three things at once:
+it's pop, it's happy, and its energy is close to what I asked for. Every pick
+also shows its reasons and points so you can see why it got chosen. The other 4
+profiles and the full breakdown are in the model card.
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or demo video link here -->
 
@@ -126,25 +123,49 @@ reasons (with points) behind its score.
 
 ## Experiments You Tried
 
-Use this section to document the experiments you ran. For example:
+I put all the point values in one spot (`DEFAULT_WEIGHTS` in
+`src/recommender.py`), so running an experiment is just changing the weights.
+`src/experiment.py` re-runs the Happy Pop profile (`pop / happy / energy 0.9`)
+with three different setups. You can run it with `python -m src.experiment`.
 
-- What happened when you changed the weight on genre from 2.0 to 0.5
-- What happened when you added tempo or valence to the score
-- How did your system behave for different types of users
+**Experiment 1: double the energy weight (2 to 4) and cut the genre weight in
+half (5 to 2.5).**
+
+| Rank | Baseline | After the change |
+|------|----------|------------------|
+| 1 | Sunrise City | Sunrise City |
+| 2 | Gym Hero | Rooftop Lights |
+| 3 | Rooftop Lights | Island Time |
+| 4 | Island Time | Gym Hero |
+| 5 | Storm Runner | Storm Runner |
+
+This made it more accurate, not just different. When genre matters less, Gym Hero
+(which is pop but its mood is intense) drops from #2 to #4. The songs that are
+actually happy, Rooftop Lights and Island Time, move up. For someone who asked
+for happy pop, that is better. It showed me the baseline was leaning on genre too
+much.
+
+**Experiment 2: turn off the mood rule (set its weight to 0).**
+
+Now Gym Hero jumps to #1, ahead of the happy Sunrise City. This one made it worse.
+Gym Hero is a pop workout song that is intense, not happy. So it proved the mood
+rule was actually doing real work. Without it, genre and energy alone hand a
+"happy pop" person an intense song.
+
+**What I learned:** the results change a lot depending on how I balance genre vs
+mood. Turning genre down helped. Taking mood out hurt.
 
 ---
 
 ## Limitations and Risks
 
-Summarize some limitations of your recommender.
+- It only has 20 songs, so it runs out of good options fast.
+- Most genres only have one song, so you get no variety in your favorite genre.
+- It doesn't understand lyrics, artists, or why someone likes a song.
+- It leans toward loud music, so people who want calm music get worse matches.
+- It never says "I found nothing", even when nothing really fits.
 
-Examples:
-
-- It only works on a tiny catalog
-- It does not understand lyrics or language
-- It might over favor one genre or mood
-
-You will go deeper on this in your model card.
+I go deeper on all of this in the model card.
 
 ---
 
