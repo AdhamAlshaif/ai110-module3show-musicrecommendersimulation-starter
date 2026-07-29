@@ -193,5 +193,67 @@ simple points system can still feel smart when it hands you a good song with the
 reasons. If I kept going, I'd add way more songs first, then let it learn from
 likes and skips instead of using one fixed profile.
 
+---
 
+## Final Project Plan — Adding AI
+
+### Context
+This project currently is a **CLI** recommender that scores a local **20-song CSV** with rule-based
+weights — no AI, no web, no external data. The final asks to add at least one of: **RAG, Agentic
+Workflow, Fine-Tuned Model, Reliability/Testing.** Goal: add RAG + more, ideally a free web app,
+possibly with Discord.
+
+Below are **3 scenarios** to choose from once the allowed tools / budget are confirmed, plus a shared
+core they all build on.
+
+> ⚠️ **Reality check:** Claude (and every text LLM) writes text, not audio. "AI-powered music" here
+> means the AI *chooses and explains* songs. Actually *generating audio* (Suno, MusicGen) is a
+> separate, harder, non-free piece — stretch scenario only.
+
+### Shared Core (all scenarios build on this)
+- **RAG (main pick):** grow the catalog past 20 songs; retrieve the most relevant songs + metadata
+  for the user's taste, then feed *that* to the LLM to generate recommendations with reasons. Start
+  with keyword/filter search over the CSV; upgrade to embeddings (`sentence-transformers` + local
+  `chromadb`/`faiss`, all free). Reuse `DEFAULT_WEIGHTS` and `score_song()` in `src/recommender.py`
+  as the pre-filter.
+- **Agentic Workflow:** Plan → Act → Check loop — parse taste, retrieve + recommend, then the AI
+  checks its own list for consistency/diversity and revises. Fits the unimplemented
+  `Recommender.explain_recommendation()` stub.
+- **Reliability/Testing:** extend `src/experiment.py` + `tests/test_recommender.py` — consistent
+  output for same input, no duplicates, explanations reference real fields, on-genre results.
+- *(Fine-tuned model: skip — least free, most effort; prompting reaches the same result.)*
+
+### The LLM ("the brain") — decide later, swap freely behind one `llm_client.py`
+| Path | Cost | When to pick |
+|---|---|---|
+| Google Gemini API free tier | **$0** | Must be strictly free. |
+| Groq free tier (Llama) | **$0** | Free + very fast; good fallback. |
+| Claude API (Opus 4.8 / Haiku 4.5) | ~pennies | Best quality; this size ≈ well under $1. |
+
+### Free data & hosting
+- **Music data:** Spotify Web API (free; search, audio features, 30-sec previews — full playback needs Premium), Deezer (free previews), Last.fm / MusicBrainz (free metadata).
+- **Web:** Streamlit (already in `requirements.txt`) → free deploy on Streamlit Community Cloud.
+- **Discord:** `discord.py` free; simplest is a webhook posting recommendation + links (no voice). Full voice playback (yt-dlp + FFmpeg) is much more work.
+
+### Scenarios
+- **A — Minimum, 100% free, CLI:** Shared Core + free LLM. Low effort, $0. Covers RAG + Agentic + Reliability = 3 required features.
+- **B — Recommended, free-ish web app ⭐:** A + Streamlit UI + Spotify API + 30-sec preview playback. Medium effort, $0–pennies. Same 3 features, demos far better.
+- **C — Stretch:** B + Discord bot and/or real audio generation (Hugging Face MusicGen free tier, or Replicate small cost). High effort/risk; only after A/B works.
+
+### Critical files
+- `src/recommender.py` — reuse `load_songs` / `score_song` / `DEFAULT_WEIGHTS` as the RAG pre-filter; fill in the `explain_recommendation()` stub with the LLM call.
+- `src/experiment.py`, `tests/test_recommender.py` — extend for Reliability.
+- `data/songs.csv` — expand or replace with a fetch script.
+- **New:** `src/llm_client.py`, `src/retriever.py`, `src/agent.py`; plus `app.py` (Streamlit) or `bot.py` (Discord) per scenario. `diagrams/architecture.mmd` is empty — fill with the chosen diagram.
+
+### Verification
+- **A:** `python -m src.main` prints AI recommendations + reasons; `pytest` green; `experiment.py` shows consistency metrics.
+- **B:** `streamlit run app.py` → enter taste → see recommendations + play a preview.
+- **C:** Discord bot posts to a test server; (if audio-gen) a generated clip is produced and playable.
+
+### Open questions to confirm before building
+1. Which LLM tools are *allowed*? (Gemini vs Groq vs Claude.)
+2. Strictly $0, or are pennies OK?
+3. Web, Discord, or both — and is 30-sec-preview playback enough, or full tracks?
+4. Is real audio *generation* required, or is "AI picks/explains music" enough?
 
