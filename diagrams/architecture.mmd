@@ -4,7 +4,7 @@ flowchart TD
     U["User: favorite genre, mood, energy, acoustic"]
     U --> IFACE
 
-    subgraph IFACE["Interfaces"]
+    subgraph IFACE["Interfaces (input / output)"]
         CLI["CLI - python -m src.main --ai"]
         WEB["Web app - streamlit run app.py"]
     end
@@ -35,7 +35,8 @@ flowchart TD
     A -. calls .-> LLM
     C -. calls .-> LLM
 
-    C --> RECS["Recommendations + plain-English reasons"]
+    C --> GUARD["Guardrail: validate_picks - drop hallucinated ids, dedupe, backfill"]
+    GUARD --> RECS["Recommendations + plain-English reasons"]
     RECS --> IFACE
 
     RECS -. click a song .-> AUD
@@ -45,3 +46,11 @@ flowchart TD
         MG --> WAV
     end
     WAV --> WEB
+
+    subgraph CHECKING["Checking the AI results"]
+        TEST["Automated tests + reliability report (tests/, src/experiment.py)"]
+        HUMAN["Human evaluation - you review the picks and listen to the clips"]
+    end
+    GUARD --> TEST
+    RECS --> HUMAN
+    WAV --> HUMAN

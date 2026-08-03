@@ -374,3 +374,23 @@ The AI pipeline is covered by tests (`tests/test_reliability.py`) and a runtime
 report (`python -m src.experiment`) that check: same input → same output, no
 duplicate songs, only real catalog songs, and grounded explanations. `pytest`
 passes 20 tests (1 optional live-LLM test is skipped unless `RUN_LLM_TESTS=1`).
+
+### Working with AI on the final project
+
+I built the AI layer with an agentic coding assistant (Claude Code), working in
+tested phases and reviewing each step before moving on.
+
+- **One helpful suggestion:** it proposed putting every model call behind a single
+  `src/llm_client.py` (the Strategy pattern) instead of calling the Claude SDK all
+  over the code. That kept the LLM provider swappable and made the whole project
+  much easier to reason about and test.
+- **One flawed suggestion:** it wrote a status message with an emoji (a checkmark)
+  inside a `print()`, which crashed on my Windows console because cp1252 can't
+  encode it. I caught it from the traceback and it switched to plain ASCII output —
+  a good reminder that AI-generated code still has to be tested on the real machine.
+
+**Limitations (recap).** The catalog is simulated, so the generated audio is *new*
+music that matches a vibe, not a real track — and it's short and lo-fi from the
+small MusicGen model. The LLM costs a little per run and can still misjudge a fit,
+and the system only knows four taste features. It is a learning demo, not a real
+product, and should not be used to make real decisions about anyone.

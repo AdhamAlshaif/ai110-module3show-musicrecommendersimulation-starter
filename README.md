@@ -11,7 +11,9 @@ Your goal is to:
 - Evaluate what your system gets right and wrong
 - Reflect on how this mirrors real world AI recommenders
 
-**My version (VibeCheck)** started as that rule-based CLI and now has a full AI layer on top. You give it a taste profile and it uses **RAG** to retrieve the most relevant songs from a 140-song catalog, an **agent loop** where **Claude** picks and explains the best ones (and double-checks its own answer), and it can even **generate an original audio clip** for any pick — locally on the GPU. It runs both as a CLI and as a **Streamlit web app**. Full details in the [AI Upgrade](#-ai-upgrade-final-project) section below.
+**Original project (Modules 1-3): _Music Recommender Simulation_.** It was a command-line, rule-based recommender that scored a small **20-song CSV** against a stated taste profile (favorite genre, mood, target energy, acoustic preference) and returned the top 5 songs, each with a point-based explanation of why it was picked. No machine learning — just a transparent scoring recipe.
+
+**My final version (VibeCheck 2.0)** keeps that scorer and adds a full AI layer on top: it uses **RAG** to retrieve the most relevant songs from an expanded **140-song** catalog, an **agent loop** where **Claude** picks and explains the best ones (and double-checks its own answer), and it can even **generate an original audio clip** for any pick — locally on the GPU. It runs as a CLI and as a **Streamlit web app**. Full details in the [AI Upgrade](#-ai-upgrade-final-project) section below.
 
 ---
 
@@ -52,10 +54,17 @@ The original recommender was a rule-based CLI over 20 songs. The final project a
 
 ### Architecture
 
+![VibeCheck architecture](assets/architecture.png)
+
+*Diagram source: [`diagrams/architecture.mmd`](diagrams/architecture.mmd) (Mermaid). The live version below renders on GitHub.*
+
+<details>
+<summary>Show the Mermaid diagram</summary>
+
 ```mermaid
 flowchart TD
     U["User: genre, mood, energy, acoustic"] --> IFACE
-    subgraph IFACE["Interfaces"]
+    subgraph IFACE["Interfaces (in / out)"]
         CLI["CLI - python -m src.main --ai"]
         WEB["Web app - streamlit run app.py"]
     end
@@ -76,15 +85,23 @@ flowchart TD
     LLM["llm_client.py - Claude API (swappable)"]
     A -. calls .-> LLM
     C -. calls .-> LLM
-    C --> RECS["Recommendations + reasons"] --> IFACE
+    C --> GUARD["Guardrail: validate_picks - no hallucinations, dedupe, backfill"]
+    GUARD --> RECS["Recommendations + reasons"] --> IFACE
     RECS -. click a song .-> AUD
     subgraph AUD["Audio (src/audio_gen.py)"]
         MG["MusicGen on GPU"] --> WAV["playable WAV clip"]
     end
     WAV --> WEB
+    subgraph CHECK2["Checking the AI results"]
+        TEST["Automated tests + reliability report"]
+        HUMAN["Human eval - review picks, listen to clips"]
+    end
+    GUARD --> TEST
+    RECS --> HUMAN
+    WAV --> HUMAN
 ```
 
-*(Source: [`diagrams/architecture.mmd`](diagrams/architecture.mmd).)*
+</details>
 
 ### What each piece does
 
@@ -168,6 +185,74 @@ You can add more tests in `tests/test_recommender.py`.
 
 ---
 
+## 🎧 Sample Interactions (AI)
+
+Real output from `python -m src.main --ai` (RAG retrieval + the Claude agent). Each run prints the Plan → Act → Check trace, then the final list.
+
+**Example 1 — Chill Lofi** (`genre=lofi, mood=chill, energy=0.35, acoustic=True`)
+The agent approved its list on the first pass — all on-genre and on-mood, with one ambient pick added for variety:
+
+```
+1. Library Rain - Paper Lanterns   [lofi/chill, energy 0.35]
+   Perfect match: lofi genre, chill mood, exact target energy 0.35, highest acousticness 0.86.
+2. Silent Embers - Velvet Hollow   [lofi/chill, energy 0.38]
+   Lofi with chill mood, energy 0.38 near target, strong acousticness 0.68, different artist.
+3. Gentle Waves - Cosmic Room      [ambient/relaxed, energy 0.26]
+   Ambient alternative with relaxed mood, lowest energy for calm variety, acousticness 0.94.
+```
+
+**Example 2 — High-Energy Pop** (`genre=pop, mood=happy, energy=0.9, acoustic=False`)
+Here the **Check step caught its own mistakes and revised** — this is the agentic behavior:
+
+```
+CHECK -> verdict: revise
+  - Songs 103 and 101 are 'moody', which contradicts the 'happy' preference
+  - Song 98 is funk, not pop, reducing genre consistency
+FINAL:
+1. Sunrise City - Neon Echo   [pop/happy, energy 0.82]
+   Pop with happy mood and 0.84 valence perfectly matches genre and mood, high danceability.
+2. Gym Hero - Max Pulse       [pop/intense, energy 0.93]
+   Pop with 0.93 energy closest to target 0.9, delivers high-energy upbeat vibes.
+```
+
+**Example 3 — Conflicting Vibes / edge case** (`genre=jazz, mood=sad, energy=0.9, acoustic=True`)
+An intentionally contradictory profile (loud **and** sad). The agent noticed the conflict and revised, and still returns real **sad jazz** — a mood that didn't even exist in the original 20-song catalog:
+
+```
+CHECK -> verdict: revise
+  - Energy target is 0.9 (intense) but the sad/acoustic jazz picks are only 0.39-0.6
+  - Mood inconsistency: some picks are 'moody'/'romantic' when the listener wants 'sad'
+```
+
+---
+
+## 🧪 Testing Summary
+
+**Automated tests:** `20 passed, 1 skipped` (the skip is a live-Claude integration test that only runs with `RUN_LLM_TESTS=1`, keeping the normal suite free and offline). The runtime reliability report (`python -m src.experiment`) passes **4/4 profiles**.
+
+| Test area (`tests/`) | What it verifies | Result |
+|---|---|---|
+| Scoring recipe | genre + mood + energy points add up correctly | Pass |
+| Determinism | same taste input → identical output | Pass |
+| No duplicates | a recommendation list has no repeats | Pass |
+| No hallucinations | `validate_picks` drops fake song ids, keeps only real catalog songs | Pass |
+| Backfill | too-few LLM picks are filled up to *k* from rule-ranked songs | Pass |
+| JSON robustness | parses Claude output even with code fences / stray text | Pass |
+| Retriever on-genre | a lofi query returns mostly lofi songs | Pass |
+
+**Human evaluation** (I ran each profile and judged the top picks by hand):
+
+| Test input (taste) | Criteria | Result |
+|---|---|---|
+| lofi / chill / 0.35 / acoustic | Top picks are calm, acoustic lofi | Pass |
+| pop / happy / 0.9 | Top pick is happy pop, not just any pop | Pass — agent revised away an intense pick |
+| jazz / **sad** / 0.9 / acoustic | Handles the contradictory profile gracefully | Pass — flags the conflict, returns real sad jazz |
+| Generated audio clip | Recognizably matches the requested vibe | Pass — clearly "happy pop" vs "calm lofi" (short/lo-fi from the small model) |
+
+**What I learned:** the agent's self-check is the most valuable part — it repeatedly caught cases where the genre matched but the *mood* didn't (e.g. an "intense" pop song for a "happy" request) and fixed them. The clearest limitation is generated-audio quality; the small MusicGen model is short and lo-fi, and a larger model would improve it.
+
+---
+
 ## Sample Recommendation Output
 
 When you run `python -m src.main` it goes through 5 profiles and prints the top 5
@@ -241,6 +326,17 @@ rule was actually doing real work. Without it, genre and energy alone hand a
 
 **What I learned:** the results change a lot depending on how I balance genre vs
 mood. Turning genre down helped. Taking mood out hurt.
+
+---
+
+## 🧩 Design Decisions
+
+- **Generate audio instead of streaming real songs.** Real 30-sec previews need a music API (Spotify/Deezer) with auth and rate limits, and Spotify recently restricted previews for new apps. Local **MusicGen** generation is fully offline, free, and a stronger "wow" feature — the trade-off is that clips are original AI music matching a vibe, not the catalog track (which is simulated anyway).
+- **Claude behind a swappable client.** All model calls go through `src/llm_client.py` (Strategy pattern), so the provider can be swapped to Gemini/Groq in one place. I default to **Haiku 4.5** to keep cost to pennies.
+- **RAG with a local vector DB.** Embeddings (MiniLM) + **Chroma** run locally on the GPU — no external service — and reuse the original `score_song()` rules as grounding, so the LLM re-ranks a small, relevant, already-scored shortlist instead of the whole catalog.
+- **Grounding + guardrails over trusting the LLM.** The agent may only recommend retrieved songs; `validate_picks` drops any hallucinated id, de-dupes, and backfills, and generation runs at temperature 0 for determinism. This trades a little creativity for reliability.
+- **Kept the rule-based CLI as a free, offline baseline.** `python -m src.main` still works with no API key, which makes the project reproducible and gives a clear before/after story.
+- **Expanded but simulated catalog.** I grew the data to 140 songs to fix the original biases (one-song genres, no "sad" mood, high-energy lean) but kept it fictional — honest for a school demo and avoids scraping real data.
 
 ---
 
