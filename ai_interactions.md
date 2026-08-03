@@ -10,19 +10,34 @@
 
 **What task did you give the agent?**
 
-<!-- Describe the goal you asked the agent to accomplish -->
+I used Claude Code (an agentic AI coding assistant) to add a full AI layer to my
+rule-based recommender: RAG retrieval, an agentic Plan → Act → Check recommender,
+a reliability test suite, local MusicGen audio generation, and a Streamlit web app.
+I asked it to work in phases and stop for me to test after each one.
 
 **Prompts used:**
 
-<!-- Paste the key prompts you gave the agent -->
+- "Remember the plan we made for the final project" — to re-establish context.
+- Answering its scoping questions: use the Claude API, build the Scenario B web app,
+  include real audio generation, and break the work into phases that stop for testing.
+- Short "go" messages to approve moving on to each next phase.
+- Follow-up questions like "will we have a web application?", "does it generate the
+  music or play the real songs from the list?", and "make the clips longer".
 
 **What did the agent generate or change?**
 
-<!-- List the files edited, code generated, or commands run -->
+Across 7 phases it created `src/llm_client.py`, `src/retriever.py`, `src/agent.py`,
+`src/audio_gen.py`, `app.py`, `data/build_catalog.py`, `tests/test_reliability.py`,
+and `diagrams/architecture.mmd`; implemented the `Recommender` OOP stubs for real;
+added a `--ai` mode to `main.py`; extended the tests and `src/experiment.py`; set up
+the virtualenv, `.env`, and `.gitignore`; and committed + pushed after every phase.
 
 **What did you verify or fix manually?**
 
-<!-- Describe anything the agent got wrong or that required human review -->
+I ran each phase's smoke test myself, listened to the generated audio, and rotated my
+API key after it was exposed in chat. I confirmed `pytest` and the reliability report
+passed, and I checked that the recommendations actually matched each taste profile
+before approving the next phase.
 
 ---
 
@@ -71,12 +86,21 @@ or folding in `valence`/`tempo`.
 
 **Which design pattern did you use?**
 
-<!-- e.g., Strategy, Factory, Observer, etc. -->
+The **Strategy pattern** — the LLM provider is a swappable strategy hidden behind one
+interface. `src/llm_client.py` exposes a single `LLMClient.complete()` method, and the
+rest of the code (the agent, the web app) never imports a vendor SDK directly. Today
+the strategy is Claude; swapping in Gemini or Groq is a change in one file, not everywhere.
 
 **How did AI help you brainstorm or implement it?**
 
-<!-- Describe the conversation or suggestions that led to your decision -->
+I asked the agent how to keep the project from being locked into one AI vendor. It
+suggested isolating all model calls behind a single client class so the provider becomes
+a pluggable strategy, and noted the same idea already existed in the scoring code
+(`DEFAULT_WEIGHTS` lets you swap scoring "strategies" without touching the logic).
 
 **How does the pattern appear in your final code?**
 
-<!-- Point to the relevant class or method -->
+`LLMClient.complete(prompt, system)` is the stable interface; the provider-specific logic
+lives in one place (`_complete_anthropic`) and is selected by a `provider` field, so
+adding a new provider means adding one branch. `src/agent.py` and `app.py` just call
+`complete()` — they don't know or care which model answers.

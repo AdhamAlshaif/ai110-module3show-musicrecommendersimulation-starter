@@ -1,0 +1,47 @@
+%% VibeCheck architecture — RAG + agentic recommender + local audio generation.
+%% Render at https://mermaid.live or with the Mermaid VS Code extension.
+flowchart TD
+    U["User: favorite genre, mood, energy, acoustic"]
+    U --> IFACE
+
+    subgraph IFACE["Interfaces"]
+        CLI["CLI - python -m src.main --ai"]
+        WEB["Web app - streamlit run app.py"]
+    end
+
+    IFACE --> AG
+
+    subgraph AG["RecommenderAgent - Plan to Act to Check (src/agent.py)"]
+        P["1. PLAN - build a retrieval query from the taste"]
+        R["2. RETRIEVE - top-k candidate songs"]
+        A["3. ACT - Claude picks and explains the best k"]
+        C["4. CHECK - Claude critiques its own list, revises once"]
+        P --> R --> A --> C
+    end
+
+    subgraph RAG["RAG retrieval (src/retriever.py)"]
+        CSV[("catalog.csv - 140 songs")]
+        EMB["MiniLM sentence embeddings on GPU"]
+        DB[("Chroma vector DB")]
+        CSV --> EMB --> DB
+    end
+    R -. nearest-neighbour search .-> DB
+
+    SC["score_song rule weights (src/recommender.py)"]
+    R --> SC
+    SC -. grounds the LLM .-> A
+
+    LLM["llm_client.py - Claude API (swappable)"]
+    A -. calls .-> LLM
+    C -. calls .-> LLM
+
+    C --> RECS["Recommendations + plain-English reasons"]
+    RECS --> IFACE
+
+    RECS -. click a song .-> AUD
+    subgraph AUD["Audio generation (src/audio_gen.py)"]
+        MG["MusicGen on RTX 4080 GPU"]
+        WAV["playable WAV clip (4-30s)"]
+        MG --> WAV
+    end
+    WAV --> WEB
