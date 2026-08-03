@@ -5,3 +5,10 @@ streamlit
 # LLM brain (Phase 1)
 anthropic
 python-dotenv
+
+# RAG retriever (Phase 2)
+sentence-transformers
+chromadb
+# torch: for GPU (embeddings + Phase 5 audio) install the CUDA build instead:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu124
+torch

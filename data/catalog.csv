@@ -1,0 +1,141 @@
+id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness
+1,Sunrise City,Neon Echo,pop,happy,0.82,118,0.84,0.79,0.18
+2,Midnight Coding,LoRoom,lofi,chill,0.42,78,0.56,0.62,0.71
+3,Storm Runner,Voltline,rock,intense,0.91,152,0.48,0.66,0.10
+4,Library Rain,Paper Lanterns,lofi,chill,0.35,72,0.60,0.58,0.86
+5,Gym Hero,Max Pulse,pop,intense,0.93,132,0.77,0.88,0.05
+6,Spacewalk Thoughts,Orbit Bloom,ambient,chill,0.28,60,0.65,0.41,0.92
+7,Coffee Shop Stories,Slow Stereo,jazz,relaxed,0.37,90,0.71,0.54,0.89
+8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22
+9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78
+10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35
+11,Concrete Jungle,Kilo Verse,hip hop,confident,0.78,95,0.62,0.85,0.12
+12,Desert Mirage,Sahara Strings,world,relaxed,0.44,102,0.68,0.57,0.74
+13,Velvet Midnight,Blue Room Trio,jazz,moody,0.39,84,0.53,0.49,0.81
+14,Breakwater,Tidal Frame,electronic,intense,0.88,128,0.55,0.90,0.08
+15,Old Porch Song,Willow Hollow,country,relaxed,0.46,96,0.70,0.55,0.83
+16,Cathedral Skies,Aurelia,classical,chill,0.30,68,0.58,0.32,0.95
+17,Riot in the Pit,Blackout Signal,metal,intense,0.96,168,0.40,0.61,0.04
+18,Island Time,Palm Fever,reggae,happy,0.58,92,0.83,0.74,0.46
+19,Neon Alley,Circuit Ghost,synthwave,moody,0.72,116,0.47,0.71,0.19
+20,Sunday Soul,Ruby Mae,r&b,relaxed,0.52,88,0.75,0.68,0.53
+21,Restless Vertigo,Wild Verse,lofi,focused,0.41,82,0.56,0.53,0.82
+22,Silent Embers,Velvet Hollow,lofi,chill,0.38,73,0.58,0.57,0.68
+23,Indigo Motion,Cosmic Parade,lofi,sad,0.48,84,0.54,0.64,0.89
+24,Broken Bloom,Crimson Trio,lofi,sad,0.31,74,0.66,0.53,0.7
+25,Hidden Signal,Velvet Bloom,lofi,focused,0.47,60,0.48,0.44,0.74
+26,Burning Drift,Electric Pulse,lofi,sad,0.33,83,0.68,0.5,0.69
+27,Gentle Waves,Cosmic Room,ambient,relaxed,0.26,52,0.48,0.41,0.94
+28,Frozen Mirage,Blue Echo,ambient,dreamy,0.35,71,0.65,0.32,0.87
+29,Cosmic Horizon,Cosmic Lanterns,ambient,dreamy,0.28,73,0.45,0.45,0.88
+30,Golden Orbit,Velvet Drift,ambient,chill,0.17,78,0.45,0.32,0.82
+31,Amber Bloom,Slow Hollow,ambient,melancholic,0.28,71,0.64,0.35,0.77
+32,Hidden Halo,Electric Drift,ambient,melancholic,0.22,56,0.57,0.34,0.75
+33,Silent Dreams,Silver Frame,classical,dreamy,0.34,79,0.5,0.27,0.88
+34,Endless Tides,Amber Verse,classical,melancholic,0.41,97,0.56,0.23,0.86
+35,Frozen Static,Velvet Trio,classical,dreamy,0.5,59,0.62,0.43,0.88
+36,Wild Vertigo,Wild Bloom,classical,romantic,0.44,89,0.65,0.34,0.87
+37,Scarlet Streets,Silver Signal,classical,melancholic,0.31,95,0.55,0.42,0.88
+38,Ocean Shadows,Hollow Collective,classical,dreamy,0.36,79,0.48,0.38,0.88
+39,Lonely Orbit,Amber Room,jazz,sad,0.6,77,0.52,0.55,0.72
+40,Lonely Rush,Hollow Echo,jazz,sad,0.47,74,0.56,0.51,0.74
+41,Rainy Nights,Neon Room,jazz,moody,0.52,105,0.5,0.5,0.77
+42,Burning Currents,Velvet Frame,jazz,sad,0.59,92,0.71,0.48,0.66
+43,Rainy Ashes,Cosmic Lanterns,jazz,relaxed,0.49,110,0.66,0.58,0.66
+44,Velvet Dreams,Echo Pulse,jazz,romantic,0.57,108,0.57,0.53,0.72
+45,Amber Waves,Cosmic Hollow,folk,romantic,0.38,82,0.66,0.44,0.75
+46,Frozen Nights,Electric Room,folk,melancholic,0.44,78,0.66,0.56,0.92
+47,Faded Frost,Blue Frame,folk,romantic,0.4,90,0.56,0.54,0.88
+48,Hidden Lanterns,Velvet Frame,folk,sad,0.32,78,0.6,0.43,0.89
+49,Paper Skyline,Static Lanterns,folk,relaxed,0.46,93,0.67,0.41,0.79
+50,City Pulse,Glass Lanterns,folk,melancholic,0.45,113,0.64,0.59,0.88
+51,Velvet Frost,Crimson Drift,blues,relaxed,0.6,101,0.51,0.48,0.68
+52,Frozen Embers,Golden Drift,blues,moody,0.51,100,0.56,0.63,0.6
+53,Silver Embers,Cosmic Verse,blues,sad,0.55,105,0.5,0.64,0.68
+54,Silent Pulse,Neon Fever,blues,sad,0.58,76,0.56,0.53,0.62
+55,Crystal Mirage,Wild Parade,blues,melancholic,0.6,96,0.38,0.45,0.73
+56,Silent Vertigo,Crimson Hollow,blues,moody,0.38,106,0.56,0.58,0.58
+57,Faded Ashes,Electric Frame,soul,relaxed,0.64,112,0.7,0.61,0.55
+58,Mountain Ashes,Cosmic Frame,soul,relaxed,0.45,110,0.73,0.56,0.59
+59,Sunlit Waves,Silver Trio,soul,confident,0.47,82,0.74,0.55,0.67
+60,Distant Rooms,Amber Ghost,soul,relaxed,0.45,87,0.78,0.68,0.57
+61,Indigo Daylight,Paper Drift,soul,moody,0.63,94,0.84,0.6,0.49
+62,Ocean Mirage,Cosmic Parade,soul,confident,0.62,108,0.63,0.67,0.5
+63,Velvet Rush,Electric Pulse,r&b,confident,0.63,108,0.8,0.7,0.59
+64,Crystal Frost,Slow Verse,r&b,relaxed,0.51,90,0.61,0.72,0.25
+65,Silent Waves,Midnight Verse,r&b,moody,0.46,90,0.68,0.83,0.56
+66,Burning Vertigo,Hollow Bloom,r&b,romantic,0.68,95,0.72,0.72,0.51
+67,Mountain Avenue,Blue Pulse,r&b,romantic,0.65,93,0.62,0.68,0.59
+68,Desert Waves,Paper Drift,r&b,moody,0.47,88,0.52,0.75,0.32
+69,Paper Fever,Static Parade,indie pop,happy,0.65,120,0.63,0.68,0.31
+70,Golden Static,Midnight Signal,indie pop,romantic,0.77,121,0.81,0.71,0.35
+71,Lonely Nights,Velvet Room,indie pop,romantic,0.65,128,0.69,0.68,0.36
+72,Wild Drift,Electric Room,indie pop,dreamy,0.74,124,0.66,0.81,0.44
+73,Rainy Waves,Velvet Bloom,indie pop,happy,0.55,118,0.8,0.71,0.49
+74,Endless Streets,Glass Pulse,indie pop,romantic,0.6,106,0.77,0.66,0.35
+75,Endless Halo,Static Trio,country,romantic,0.43,110,0.52,0.6,0.8
+76,Glass Avenue,Echo Lanterns,country,romantic,0.65,114,0.67,0.68,0.75
+77,Velvet Motion,Slow Frame,country,happy,0.67,112,0.57,0.46,0.82
+78,Paper Pulse,Lunar Verse,country,happy,0.5,88,0.61,0.63,0.62
+79,Silent Echoes,Silver Frame,country,romantic,0.63,110,0.75,0.68,0.58
+80,Endless Horizon,Blue Fever,country,romantic,0.61,119,0.72,0.66,0.79
+81,Endless Nights,Electric Fever,reggae,relaxed,0.45,93,0.67,0.64,0.46
+82,Wild Echoes,Echo Pulse,reggae,relaxed,0.55,88,0.76,0.7,0.41
+83,Neon Motion,Lunar Echo,reggae,happy,0.59,86,0.63,0.7,0.49
+84,Sacred Halo,Midnight Hollow,reggae,chill,0.66,90,0.64,0.79,0.55
+85,Cosmic Mirage,Echo Collective,reggae,chill,0.48,100,0.8,0.71,0.44
+86,Broken Rush,Neon Circuit,reggae,chill,0.59,99,0.61,0.81,0.6
+87,Rainy Rooms,Lunar Circuit,world,relaxed,0.59,110,0.75,0.72,0.59
+88,Rainy Glow,Echo Lanterns,world,relaxed,0.43,111,0.82,0.77,0.59
+89,Paper Avenue,Amber Verse,world,happy,0.45,97,0.8,0.63,0.66
+90,Hidden Orbit,Lunar Frame,world,dreamy,0.47,115,0.61,0.54,0.63
+91,Rainy Vertigo,Wild Circuit,world,happy,0.57,101,0.82,0.68,0.62
+92,Restless Nights,Glass Room,world,happy,0.41,124,0.82,0.72,0.76
+93,City Bloom,Hollow Signal,funk,energetic,0.84,112,0.73,0.85,0.29
+94,Crystal Tides,Hollow Verse,funk,energetic,0.77,107,0.88,0.9,0.16
+95,Amber Rooms,Crimson Signal,funk,confident,0.78,100,0.68,0.79,0.34
+96,Midnight Motion,Hollow Ghost,funk,confident,0.62,120,0.76,0.84,0.28
+97,Faded Static,Cosmic Strings,funk,energetic,0.66,120,0.75,0.83,0.17
+98,Golden Bloom,Cosmic Trio,funk,energetic,0.83,102,0.79,0.87,0.17
+99,Distant Bloom,Lunar Frame,pop,confident,0.63,102,0.8,0.9,0.27
+100,Silent Skyline,Wild Drift,pop,confident,0.71,119,0.83,0.78,0.07
+101,Wild Orbit,Silver Circuit,pop,moody,0.88,107,0.92,0.71,0.24
+102,Restless Signal,Hollow Signal,pop,energetic,0.8,129,0.76,0.82,0.28
+103,Sunlit Signal,Wild Pulse,pop,moody,0.87,107,0.89,0.81,0.29
+104,Endless Harbor,Slow Drift,pop,moody,0.67,111,0.74,0.82,0.25
+105,Cosmic Lanterns,Crimson Pulse,rock,intense,0.84,119,0.4,0.62,0.14
+106,Neon Skyline,Hollow Lanterns,rock,energetic,0.79,111,0.46,0.62,0.24
+107,Indigo Skyline,Silver Ghost,rock,intense,0.69,144,0.63,0.72,0.07
+108,Mountain Vertigo,Hollow Trio,rock,energetic,0.68,111,0.44,0.6,0.28
+109,Wild Pulse,Paper Strings,rock,intense,0.87,110,0.52,0.69,0.14
+110,Sunlit Tides,Velvet Ghost,rock,confident,0.87,145,0.54,0.69,0.15
+111,Ocean Currents,Echo Stereo,synthwave,dreamy,0.73,104,0.66,0.79,0.2
+112,Restless Orbit,Neon Fever,synthwave,moody,0.82,105,0.51,0.73,0.26
+113,Velvet Drift,Paper Verse,synthwave,dreamy,0.84,110,0.61,0.79,0.23
+114,Mountain Mirage,Electric Bloom,synthwave,dreamy,0.63,101,0.5,0.75,0.34
+115,Cosmic Tides,Static Stereo,synthwave,moody,0.66,108,0.49,0.67,0.31
+116,Velvet Echoes,Crimson Frame,synthwave,energetic,0.73,117,0.61,0.66,0.29
+117,Broken Nights,Paper Stereo,hip hop,moody,0.82,107,0.72,0.91,0.1
+118,Paper Orbit,Echo Trio,hip hop,energetic,0.64,88,0.61,0.85,0.28
+119,Golden Daylight,Crimson Drift,hip hop,energetic,0.88,113,0.46,0.91,0.15
+120,Velvet Nights,Crimson Echo,hip hop,energetic,0.61,85,0.52,0.76,0.22
+121,Midnight Reverie,Blue Circuit,hip hop,moody,0.64,85,0.64,0.82,0.29
+122,Sunlit Skyline,Silver Bloom,hip hop,confident,0.73,109,0.71,0.85,0.32
+123,Distant Nights,Lunar Circuit,electronic,euphoric,0.71,126,0.76,0.84,0.14
+124,Restless Pulse,Wild Hollow,electronic,intense,0.85,132,0.78,0.79,0.2
+125,Cosmic Frost,Glass Pulse,electronic,energetic,0.89,128,0.46,0.9,0.13
+126,Golden Echoes,Amber Hollow,electronic,energetic,0.78,122,0.62,0.87,0.17
+127,Restless Mirage,Glass Drift,electronic,intense,0.85,133,0.74,0.88,0.14
+128,Indigo Currents,Paper Frame,electronic,euphoric,0.84,129,0.56,0.86,0.04
+129,Paper Dreams,Crimson Collective,edm,happy,0.95,128,0.61,0.81,0.13
+130,Golden Frost,Static Trio,edm,intense,0.77,126,0.8,0.8,0.19
+131,Desert Bloom,Silver Parade,edm,euphoric,0.94,120,0.59,0.94,0.14
+132,Wild Waves,Velvet Hollow,edm,euphoric,0.9,131,0.7,0.82,0.16
+133,Frozen Fever,Hollow Room,edm,happy,0.95,120,0.66,0.81,0.11
+134,Rainy Lanterns,Midnight Lanterns,edm,euphoric,0.88,129,0.75,0.82,0.02
+135,Golden Drift,Electric Stereo,metal,energetic,0.9,139,0.36,0.53,0.12
+136,Midnight Daylight,Velvet Verse,metal,intense,0.91,169,0.47,0.54,0.05
+137,Cosmic Embers,Wild Stereo,metal,angry,0.89,144,0.51,0.65,0.08
+138,Electric Vertigo,Midnight Trio,metal,intense,0.81,158,0.49,0.6,0.07
+139,Amber Avenue,Neon Bloom,metal,angry,0.91,147,0.33,0.59,0.15
+140,Ocean Rooms,Lunar Lanterns,metal,intense,0.97,158,0.33,0.7,0.07
