@@ -1,6 +1,6 @@
 import csv
 from typing import List, Dict, Tuple, Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 @dataclass
 class Song:
@@ -39,12 +39,46 @@ class Recommender:
         self.songs = songs
 
     def recommend(self, user: UserProfile, k: int = 5) -> List[Song]:
-        # TODO: Implement recommendation logic
-        return self.songs[:k]
+        """
+        Score every song against the user with the Algorithm Recipe rules and
+        return the top k Song objects, highest score first.
 
-    def explain_recommendation(self, user: UserProfile, song: Song) -> str:
-        # TODO: Implement explanation logic
-        return "Explanation placeholder"
+        Reuses the functional score_song() so the OOP and functional paths always
+        agree. (Song/UserProfile are dataclasses; asdict() turns them into the
+        plain dicts score_song() expects.)
+        """
+        prefs = asdict(user)
+        scored = [(song, score_song(prefs, asdict(song))[0]) for song in self.songs]
+        scored.sort(key=lambda pair: pair[1], reverse=True)
+        return [song for song, _ in scored[:k]]
+
+    def explain_recommendation(self, user: UserProfile, song: Song, llm=None) -> str:
+        """
+        Return a human-readable reason for why `song` fits `user`.
+
+        Offline by default: the sentence is built from the actual rule matches, so
+        it always references real attributes and needs no network (the unit tests
+        rely on this). If an LLMClient is passed, Claude rewrites it into a
+        friendlier sentence, falling back to the rule-based text on any error.
+        """
+        prefs = asdict(user)
+        _, reasons = score_song(prefs, asdict(song))
+        if reasons:
+            base = f"'{song.title}' matches because of " + ", ".join(reasons) + "."
+        else:
+            base = f"'{song.title}' is only a loose match for your taste."
+
+        if llm is None:
+            return base
+        try:
+            nicer = llm.complete(
+                f"Rewrite this as one warm, natural sentence for a music app user, "
+                f"keeping it accurate and specific:\n{base}",
+                system="You write concise, friendly music recommendation blurbs.",
+            )
+            return nicer or base
+        except Exception:
+            return base
 
 def load_songs(csv_path: str) -> List[Dict]:
     """

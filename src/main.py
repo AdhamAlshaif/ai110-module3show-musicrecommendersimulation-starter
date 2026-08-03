@@ -13,6 +13,8 @@ profiles, including deliberately "adversarial" ones with conflicting or
 impossible preferences, to see where the scoring logic breaks down.
 """
 
+import argparse
+
 from src.recommender import load_songs, recommend_songs
 
 
@@ -86,11 +88,43 @@ def print_recommendations(name: str, user_prefs: dict, songs: list, k: int = 5) 
     print()
 
 
-def main() -> None:
+def run_rules() -> None:
+    """The original, offline, rule-based demo over the 20-song catalog."""
     songs = load_songs("data/songs.csv")
     print()
     for name, prefs in PROFILES.items():
         print_recommendations(name, prefs, songs, k=5)
+
+
+def run_ai() -> None:
+    """
+    The AI demo: for each profile, run the full RAG + Claude agent
+    (Plan -> Act -> Check) over the expanded 140-song catalog and print the trace.
+    Imported lazily so the default rule-based mode needs no LLM/network.
+    """
+    from src.agent import RecommenderAgent, print_result
+
+    agent = RecommenderAgent()  # builds the RAG index on first use
+    print()
+    for name, prefs in PROFILES.items():
+        result = agent.recommend(prefs)
+        print_result(name, prefs, result)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Music Recommender Simulation (VibeCheck)")
+    parser.add_argument(
+        "--ai",
+        action="store_true",
+        help="Use the AI agent (RAG retrieval + Claude, Plan->Act->Check) over the "
+             "140-song catalog. Default is the offline rule-based scorer over the 20 songs.",
+    )
+    args = parser.parse_args()
+
+    if args.ai:
+        run_ai()
+    else:
+        run_rules()
 
 
 if __name__ == "__main__":
