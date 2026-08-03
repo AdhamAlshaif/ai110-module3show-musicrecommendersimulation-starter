@@ -13,3 +13,16 @@ venv/
 
 # Pytest cache
 .pytest_cache/
+
+# Secrets — NEVER commit the real key
+.env
+
+# Generated audio output
+outputs/
+*.wav
+
+# Vector store / model caches
+.chroma/
+chroma_db/
+.cache/
+*.egg-info/

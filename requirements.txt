@@ -1,3 +1,7 @@
 pandas
 pytest
 streamlit
+
+# LLM brain (Phase 1)
+anthropic
+python-dotenv
