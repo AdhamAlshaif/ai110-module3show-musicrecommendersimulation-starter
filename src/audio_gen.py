@@ -28,6 +28,10 @@ DEFAULT_MODEL = os.getenv("MUSICGEN_MODEL", "facebook/musicgen-small")
 
 # MusicGen produces audio tokens at ~50 Hz, so seconds * 50 ~= max_new_tokens.
 TOKENS_PER_SECOND = 50
+# MusicGen is trained on ~30s windows; going past that hurts quality, so we clamp.
+MIN_SECONDS = 4
+MAX_SECONDS = 30
+DEFAULT_SECONDS = 15
 
 # Lazily-loaded (model, processor, sampling_rate, device) so importing is cheap.
 _bundle: Optional[Tuple] = None
@@ -92,24 +96,26 @@ def _write_wav(path: str, audio, sampling_rate: int) -> None:
 
 def generate_clip(
     prompt: str,
-    seconds: int = 8,
+    seconds: int = DEFAULT_SECONDS,
     out_path: Optional[str] = None,
     seed: Optional[int] = 0,
 ) -> str:
     """
     Generate an instrumental clip for `prompt` and save it as a WAV.
 
+    `seconds` is clamped to [MIN_SECONDS, MAX_SECONDS] (MusicGen's usable range).
     Returns the path to the written file. `seed` makes generation reproducible;
     pass None for a fresh clip each call.
     """
     import torch
 
+    seconds = max(MIN_SECONDS, min(int(seconds), MAX_SECONDS))
     model, processor, sampling_rate, device = _get_model()
     if seed is not None:
         torch.manual_seed(seed)
 
     inputs = processor(text=[prompt], padding=True, return_tensors="pt").to(device)
-    max_new_tokens = max(64, int(seconds * TOKENS_PER_SECOND))
+    max_new_tokens = int(seconds * TOKENS_PER_SECOND)
 
     with torch.no_grad():
         audio_values = model.generate(
@@ -126,7 +132,7 @@ def generate_clip(
     return out_path
 
 
-def generate_for_song(song: Dict, seconds: int = 8, seed: Optional[int] = 0) -> str:
+def generate_for_song(song: Dict, seconds: int = DEFAULT_SECONDS, seed: Optional[int] = 0) -> str:
     """Convenience: describe a song's vibe and generate a clip named after it."""
     prompt = describe_vibe(song)
     name = _slug(f"{song.get('title', 'clip')}_{song.get('genre', '')}")
@@ -141,6 +147,6 @@ if __name__ == "__main__":
         "title": "Sunrise City", "genre": "pop", "mood": "happy",
         "energy": 0.82, "tempo_bpm": 118, "acousticness": 0.18,
     }
-    path = generate_for_song(demo_song, seconds=8)
+    path = generate_for_song(demo_song, seconds=DEFAULT_SECONDS)
     print(f"\nPhase 5 OK - generated audio at: {path}")
     print("Open it in any media player to listen.")

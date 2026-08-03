@@ -14,7 +14,7 @@ import os
 import streamlit as st
 
 from src.agent import RecommenderAgent
-from src.audio_gen import describe_vibe, generate_for_song
+from src.audio_gen import DEFAULT_SECONDS, MAX_SECONDS, MIN_SECONDS, describe_vibe, generate_for_song
 from src.retriever import DEFAULT_CATALOG
 from src.recommender import load_songs
 
@@ -50,6 +50,15 @@ if not os.getenv("ANTHROPIC_API_KEY"):
     st.stop()
 
 genres, moods, n_songs = get_options()
+
+# Audio controls live in the sidebar so they're always available.
+with st.sidebar:
+    st.header("🎧 Audio settings")
+    clip_len = st.slider(
+        "Clip length (seconds)", MIN_SECONDS, MAX_SECONDS, DEFAULT_SECONDS, 1,
+        help="How long each generated clip is. MusicGen tops out around 30s; "
+             "longer clips take a little longer to generate.",
+    )
 
 
 # --- taste form -------------------------------------------------------------
@@ -108,9 +117,9 @@ for i, song in enumerate(result["recommendations"], 1):
         )
         st.write(song["reason"])
 
-        if st.button("🎧 Generate this vibe", key=f"gen_{song['id']}"):
+        if st.button(f"🎧 Generate this vibe ({clip_len}s)", key=f"gen_{song['id']}"):
             with st.spinner("Generating audio on your GPU… (the first clip also loads the model)"):
-                audio[song["id"]] = generate_for_song(song, seconds=8)
+                audio[song["id"]] = generate_for_song(song, seconds=clip_len)
 
         if song["id"] in audio:
             st.audio(audio[song["id"]])
