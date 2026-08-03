@@ -12,3 +12,8 @@ chromadb
 # torch: for GPU (embeddings + Phase 5 audio) install the CUDA build instead:
 #   pip install torch --index-url https://download.pytorch.org/whl/cu124
 torch
+
+# AI audio generation (Phase 5) — MusicGen via transformers; scipy writes WAVs.
+# (transformers + scipy already come in with sentence-transformers; listed for clarity.)
+transformers
+scipy
