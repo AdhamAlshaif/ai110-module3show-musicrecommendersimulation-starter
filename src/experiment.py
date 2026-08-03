@@ -58,5 +58,69 @@ def run() -> None:
     print()
 
 
+# ---------------------------------------------------------------------------
+# Reliability report (Phase 4)
+# ---------------------------------------------------------------------------
+# Beyond weight sensitivity, we also want evidence the recommender *behaves*:
+# same input -> same output, no duplicate songs, only real catalog songs, and
+# grounded explanations. This runs offline over the full 140-song catalog.
+
+CATALOG_PATH = "data/catalog.csv"
+
+CHECK_PROFILES = {
+    "Chill Lofi":      {"favorite_genre": "lofi",  "favorite_mood": "chill",   "target_energy": 0.30, "likes_acoustic": True},
+    "High-Energy Pop": {"favorite_genre": "pop",   "favorite_mood": "happy",   "target_energy": 0.90, "likes_acoustic": False},
+    "Intense Metal":   {"favorite_genre": "metal", "favorite_mood": "intense", "target_energy": 0.95, "likes_acoustic": False},
+    "Sad Jazz":        {"favorite_genre": "jazz",  "favorite_mood": "sad",     "target_energy": 0.40, "likes_acoustic": True},
+}
+
+
+def _grounded(explanation: str) -> bool:
+    """An explanation is 'grounded' if it's non-empty and cites a real rule."""
+    e = explanation.strip()
+    return bool(e) and ("match" in e or e == "no strong matches")
+
+
+def reliability_report() -> None:
+    """Check the reliability properties on every profile and print PASS/FAIL."""
+    songs = load_songs(CATALOG_PATH)
+    catalog_ids = {s["id"] for s in songs}
+
+    print(SEP)
+    print(f"RELIABILITY REPORT  (rule-based recommender over {len(songs)} songs)")
+    print(SEP)
+
+    profiles_passed = 0
+    for name, prefs in CHECK_PROFILES.items():
+        recs1 = recommend_songs(prefs, songs, k=5)
+        recs2 = recommend_songs(prefs, songs, k=5)
+        ids1 = [s["id"] for s, _, _ in recs1]
+
+        deterministic = ids1 == [s["id"] for s, _, _ in recs2]
+        no_dupes = len(ids1) == len(set(ids1))
+        real_songs = all(i in catalog_ids for i in ids1)
+        grounded = all(_grounded(expl) for _, _, expl in recs1)
+        on_genre = recs1[0][0]["genre"] == prefs["favorite_genre"]
+
+        passed = deterministic and no_dupes and real_songs and grounded
+        profiles_passed += int(passed)
+
+        def mark(ok: bool) -> str:
+            return "PASS" if ok else "FAIL"
+
+        print(
+            f"  {name:<16} deterministic={mark(deterministic)}  "
+            f"no-duplicates={mark(no_dupes)}  real-songs={mark(real_songs)}  "
+            f"grounded={mark(grounded)}  top-genre-match={'yes' if on_genre else 'no'}"
+        )
+
+    total = len(CHECK_PROFILES)
+    print("-" * 68)
+    verdict = "ALL CHECKS PASSED" if profiles_passed == total else "SOME CHECKS FAILED"
+    print(f"  Overall: {verdict}  ({profiles_passed}/{total} profiles)")
+    print()
+
+
 if __name__ == "__main__":
     run()
+    reliability_report()

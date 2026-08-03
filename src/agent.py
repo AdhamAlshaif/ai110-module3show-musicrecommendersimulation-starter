@@ -68,6 +68,46 @@ def _extract_json(text: str) -> dict:
     return json.loads(text)
 
 
+def validate_picks(picks: List[Dict], candidates: List[Dict], k: int) -> List[Dict]:
+    """
+    Keep only picks that reference a real candidate id, de-duplicated, capped at k.
+    If too few remain, backfill from the rule-ranked candidates so the list is
+    always full and always contains only real catalog songs. This is the core
+    reliability guard against LLM hallucinations -- unit-tested with no API call.
+    """
+    valid_ids = {c["id"] for c in candidates}
+    seen, cleaned = set(), []
+    for p in picks:
+        try:
+            pid = int(p.get("id"))
+        except (TypeError, ValueError):
+            continue
+        if pid in valid_ids and pid not in seen:
+            seen.add(pid)
+            cleaned.append({"id": pid, "reason": str(p.get("reason", "")).strip()})
+        if len(cleaned) == k:
+            break
+
+    if len(cleaned) < k:
+        for c in sorted(candidates, key=lambda c: c.get("rule_score", 0), reverse=True):
+            if c["id"] not in seen:
+                seen.add(c["id"])
+                cleaned.append({"id": c["id"], "reason": "Strong overall match for your taste."})
+            if len(cleaned) == k:
+                break
+    return cleaned
+
+
+def materialize_picks(picks: List[Dict], by_id: Dict) -> List[Dict]:
+    """Turn [{id, reason}] into full song dicts carrying the reason."""
+    out = []
+    for p in picks:
+        song = dict(by_id[p["id"]])
+        song["reason"] = p["reason"]
+        out.append(song)
+    return out
+
+
 class RecommenderAgent:
     """Runs the Plan -> Act -> Check loop to produce explained recommendations."""
 
@@ -181,41 +221,11 @@ class RecommenderAgent:
     # --- helpers ------------------------------------------------------------
 
     def _validate(self, picks: List[Dict], candidates: List[Dict]) -> List[Dict]:
-        """
-        Keep only picks that reference a real candidate id, de-duplicated, capped
-        at k. If the LLM returned too few, backfill from the rule-ranked candidates
-        so we always return a full list.
-        """
-        valid_ids = {c["id"] for c in candidates}
-        seen, cleaned = set(), []
-        for p in picks:
-            try:
-                pid = int(p.get("id"))
-            except (TypeError, ValueError):
-                continue
-            if pid in valid_ids and pid not in seen:
-                seen.add(pid)
-                cleaned.append({"id": pid, "reason": str(p.get("reason", "")).strip()})
-            if len(cleaned) == self.k:
-                break
-
-        if len(cleaned) < self.k:
-            for c in sorted(candidates, key=lambda c: c["rule_score"], reverse=True):
-                if c["id"] not in seen:
-                    seen.add(c["id"])
-                    cleaned.append({"id": c["id"], "reason": "Strong overall match for your taste."})
-                if len(cleaned) == self.k:
-                    break
-        return cleaned
+        # Thin wrapper around the module-level guard (see validate_picks).
+        return validate_picks(picks, candidates, self.k)
 
     def _materialize(self, picks: List[Dict], by_id: Dict) -> List[Dict]:
-        """Turn [{id, reason}] into full song dicts carrying the reason + scores."""
-        out = []
-        for p in picks:
-            song = dict(by_id[p["id"]])
-            song["reason"] = p["reason"]
-            out.append(song)
-        return out
+        return materialize_picks(picks, by_id)
 
     @staticmethod
     def _format_prefs(prefs: Dict) -> str:
