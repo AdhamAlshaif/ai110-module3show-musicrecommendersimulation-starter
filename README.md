@@ -124,6 +124,21 @@ flowchart TD
 
 ---
 
+## 🛠️ Built With
+
+| Tool | What it does |
+|---|---|
+| **Python** | The language the whole project is written in |
+| **Claude (Anthropic API)** | The AI "brain" — picks and explains songs, checks its own work, and writes music prompts |
+| **Chroma** | Vector database that stores and searches the songs (the RAG part) |
+| **Sentence-Transformers (MiniLM)** | Embeds each song so it can be searched by meaning |
+| **MusicGen** (Meta) + **PyTorch** | Generates original audio locally on the GPU |
+| **Streamlit** | The two-page web app in the browser |
+| **pytest** | Automated reliability tests |
+| **Git / GitHub** | Version control |
+
+---
+
 ## Getting Started
 
 ### Setup
