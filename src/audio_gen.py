@@ -78,6 +78,34 @@ def describe_vibe(song: Dict) -> str:
     )
 
 
+def music_prompt_from_text(user_text: str, llm=None) -> str:
+    """
+    Turn a free-text request ("a sad oud melody for a desert night") into ONE
+    concise MusicGen prompt, using Claude when an LLMClient is provided.
+
+    Guardrail: MusicGen makes *instrumental* music only and cannot reproduce a real
+    person's voice, so the system prompt tells Claude to never imitate a named
+    artist's singing — it translates such requests into that artist's genre/style
+    as an instrumental instead. Falls back to the raw text if there's no LLM or an
+    error occurs.
+    """
+    if llm is None:
+        return user_text.strip()
+    system = (
+        "You convert a user's music request into ONE short prompt (max ~40 words) "
+        "for MusicGen, which generates INSTRUMENTAL music only. Describe genre, mood, "
+        "instruments, tempo, and era. Never imitate, clone, or name a real person's "
+        "singing voice; if the user names a real artist or asks for vocals, translate "
+        "it into that artist's genre/style as an instrumental instead. "
+        "Output ONLY the prompt text, no quotes, no explanation."
+    )
+    try:
+        result = llm.complete(user_text, system=system)
+        return result.strip() or user_text.strip()
+    except Exception:
+        return user_text.strip()
+
+
 def _slug(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_") or "clip"
 

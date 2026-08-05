@@ -112,7 +112,7 @@ flowchart TD
 | **Reliability** | `tests/`, `src/experiment.py` | Only real catalog songs (no hallucinations), no duplicates, deterministic, grounded explanations. `pytest` = 20 passing; `experiment.py` prints a reliability report. |
 | **LLM brain** | `src/llm_client.py` | A swappable wrapper over the **Claude API** (defaults to cheap Haiku 4.5; provider changes in one place). |
 | **Audio generation** | `src/audio_gen.py` | Turns a pick's vibe into a **MusicGen** prompt and generates an original 4–30s instrumental **locally on the GPU**. |
-| **Web app** | `app.py` | A **Streamlit** UI: taste form → AI recommendations + reasons → a button to generate and play a clip. |
+| **Web app** | `app.py`, `pages/` | A **Streamlit** UI with two pages: **(1)** taste form → AI recommendations + reasons → generate & play a clip; **(2)** *Make Music* → describe any music in words → Claude writes a prompt → MusicGen generates it (instrumental only; no voice cloning). |
 
 > **About the audio:** the 140-song catalog is *simulated* (fictional titles + feature numbers), so there are no real recordings. The audio feature **generates brand-new music** that matches a pick's vibe — it does not play the catalog song.
 
